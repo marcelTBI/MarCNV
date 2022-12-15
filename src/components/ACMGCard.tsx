@@ -95,7 +95,7 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
 
   useEffect(() => {
     const fetchACMG = async () => {
-      const { json } = await backendRequest({ endpoint: `http://158.195.68.76:5007/api/global/acmg_text/${cnvType}` })
+      const { json } = await backendRequest({ endpoint: `${process.env.REACT_APP_BACKEND_URL}/api/global/acmg_text/${cnvType}` })
       setAcmg(json)
     }
 

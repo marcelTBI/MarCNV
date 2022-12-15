@@ -14,11 +14,11 @@ const SearchPage: React.FC = () => {
   const submitData = async (data: CNVStats) => {
     // query all APIs
     const promises = ['1', '2', '3', '4', '5'].map((num) => {
-      const endpoint = `${process.env.BACKEND_URL}/api/acmg/section${num}/${data.chrom}/${data.start}/${data.end}/${data.cnvType}`
+      const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/acmg/section${num}/${data.chrom}/${data.start}/${data.end}/${data.cnvType}`
       return backendRequest({ endpoint: endpoint })
     })
     const results = await Promise.all(promises)
-    const endpoint = `${process.env.BACKEND_URL}/api/cnv/${data.chrom}:${data.start}-${data.end}/risk/${data.cnvType}`
+    const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/cnv/${data.chrom}:${data.start}-${data.end}/risk/${data.cnvType}`
     const resultISV = await backendRequest({ endpoint: endpoint })
     // save results and query
     setSearchQuery(data)

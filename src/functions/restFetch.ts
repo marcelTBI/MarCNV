@@ -53,7 +53,7 @@ const fetchWithTimeout: (props: BackendRequestProps) => Promise<Response> = asyn
   const requestHeaders = new Headers(headers ?? { 'Content-Type': 'application/json' })
   requestHeaders.set('timestamp', getCurrentTime())
   requestHeaders.append('Accept', 'application/json')
-  requestHeaders.append('Origin', process.env.ORIGIN_URL ?? '')
+  requestHeaders.append('Origin', process.env.REACT_APP_ORIGIN_URL ?? '')
 
   // build an abort controller
   const controller = new AbortController()

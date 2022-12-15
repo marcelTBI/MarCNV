@@ -1,6 +1,6 @@
 # MarCNV - CNV evaluation web
 
-CNV evaluation web for both ACMG criteria and machine learning prediction (ISV). 
+CNV evaluation web for both ACMG criteria and machine learning prediction (ISV).
 
 ## Development
 
@@ -8,22 +8,22 @@ CNV evaluation web for both ACMG criteria and machine learning prediction (ISV).
 
 1. Install all dependencies
 
-    ```shell
-    yarn install
-    ```
+   ```shell
+   yarn install
+   ```
 
 2. Create a `.env` file with following variables (this is a working example)
 
-    ```shell
-    BACKEND_URL="0.0.0.0:8000"
-    ORIGIN_URL="0.0.0.0:8000"
-    ```
+   ```shell
+   REACT_APP_BACKEND_URL="0.0.0.0:8000"
+   REACT_APP_ORIGIN_URL="0.0.0.0:8000"
+   ```
 
 3. Start app
 
-    ```shell
-    yarn start
-    ```
+   ```shell
+   yarn start
+   ```
 
 ## Available Scripts
 
