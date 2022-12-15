@@ -1,9 +1,9 @@
 import React from 'react'
 
-import SearchCNV from './pages/SearchCNV'
+import SearchPage from './pages/SearchPage'
 
 const App: React.FC = () => {
-  return <SearchCNV />
+  return <SearchPage />
 }
 
 export default App

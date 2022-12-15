@@ -53,7 +53,7 @@ const FormInputComboBox: React.FC<FormInputComboBoxProps> = ({
             />
           )}
           getOptionLabel={(option: Option | null) => option?.label ?? ''}
-          isOptionEqualToValue={(option: Option, valueOption: Option) => option.id === valueOption.id && option.label === valueOption.label}
+          isOptionEqualToValue={(option: Option, valueOption: Option) => option.label === valueOption.label}
         />
       )}
     />

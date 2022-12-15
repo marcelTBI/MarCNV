@@ -1,18 +1,20 @@
-export type backendRequestFirstProps = {
+export type BackendRequestProps = {
   method?: 'GET' | 'POST' | 'DELETE' | 'PUT'
   endpoint: string
   body?: FormData | object | null
   headers?: Headers
-  setErrorMessage?: React.Dispatch<React.SetStateAction<string>>
-  showErrorMessageTemporary?: boolean
-  errorMessageDuration?: number
+  timeout?: number
+}
+
+export type BackendResponse = {
+  status: number
+  errorMessage: string
+  json: Record<string, unknown>
 }
 
 const getCurrentTime = () => {
   const now = new Date()
-  return `${now.getFullYear()}-${
-    now.getMonth() + 1
-  }-${now.getDate()}T${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`
+  return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}T${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}.${now.getMilliseconds()}`
 }
 
 export const createErrorMessage = (message: string | Array<unknown> | Record<string, unknown>): string => {
@@ -25,30 +27,18 @@ export const createErrorMessage = (message: string | Array<unknown> | Record<str
   }
 }
 
-export const handleMessageVisibility = (setMessage: React.Dispatch<React.SetStateAction<string>>, message: string, seconds: number = 2) => {
-  setMessage(message)
-  setTimeout(() => {
-    setMessage('')
-  }, seconds * 1000)
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) return error.message
+  return String(error)
 }
 
-export const backendFirstRequest: (props: backendRequestFirstProps) => Promise<Response> = async ({
+const fetchWithTimeout: (props: BackendRequestProps) => Promise<Response> = async ({
   method = 'GET',
   endpoint,
   body = null,
   headers,
-  setErrorMessage,
-  showErrorMessageTemporary = false,
-  errorMessageDuration = 2,
+  timeout = 60 * 3 * 1000,
 }) => {
-  const controller = new AbortController()
-  const timeoutID = setTimeout(() => {
-    console.error(`Request ${method} ${endpoint} took too long. Aborting Request`)
-    controller.abort()
-    setErrorMessage && setErrorMessage(`Request ${method} ${endpoint} took too long. Aborting Request`)
-    window.location.reload()
-  }, 60 * 3 * 1000) // ie 3 minutes
-
   // process body
   let requestBody = null
   if (body) {
@@ -63,23 +53,42 @@ export const backendFirstRequest: (props: backendRequestFirstProps) => Promise<R
   const requestHeaders = new Headers(headers ?? { 'Content-Type': 'application/json' })
   requestHeaders.set('timestamp', getCurrentTime())
   requestHeaders.append('Accept', 'application/json')
-  requestHeaders.append('Origin', 'http://localhost:3000') // TODO change in production
+  requestHeaders.append('Origin', process.env.ORIGIN_URL ?? '')
+
+  // build an abort controller
+  const controller = new AbortController()
+  const timeoutID = setTimeout(() => {
+    console.error(`Request ${method} ${endpoint} took too long. Aborting Request`)
+    controller.abort(`Request ${method} ${endpoint} took too long. Aborting Request`)
+  }, timeout) // timeout is in miliseconds (default 3 mins)
 
   // fetch
   const response = await fetch(endpoint, { method: method, headers: requestHeaders, signal: controller.signal, body: requestBody })
 
-  // set error message
-  if (response.status !== 200 && setErrorMessage !== undefined) {
-    const detail = await response.clone().json()
-    const errorMessage = createErrorMessage(detail.detail)
-
-    if (showErrorMessageTemporary) {
-      handleMessageVisibility(setErrorMessage, errorMessage, errorMessageDuration)
-    } else {
-      setErrorMessage(errorMessage)
-    }
-  }
-
+  // clear timeout and return
   clearTimeout(timeoutID) // important, otherwise the timeout is not reset and continues => abort request
   return response
+}
+
+export const backendRequest: (props: BackendRequestProps) => Promise<BackendResponse> = async (props) => {
+  try {
+    // try to fetch
+    const response = await fetchWithTimeout(props)
+    // and resolve all errors
+    if (response.status !== 200) {
+      let errorMessage = ''
+      try {
+        const detail = await response.clone().json()
+        errorMessage = createErrorMessage(detail.detail)
+      } catch (error) {
+        errorMessage = `Response not converted to JSON! (${getErrorMessage(error)})`
+      }
+      return { status: response.status, errorMessage: errorMessage, json: {} }
+    } else {
+      return { status: response.status, errorMessage: '', json: await response.json() }
+    }
+  } catch (error) {
+    // this is probably timeout error (TODO parse error to make sure?)
+    return { status: 408, errorMessage: getErrorMessage(error), json: {} }
+  }
 }
