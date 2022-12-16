@@ -93,7 +93,7 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
   return (
     <Paper sx={{ padding: 2, flex: 1 }}>
       <Stack spacing={2} alignItems='center'>
-        <Typography variant='h4'>MarCNV</Typography>
+        <Typography variant='h5'>Interpretation of copy-number variants</Typography>
         <Stack spacing={2} direction='row' alignItems='center'>
           <FormInputComboBox name='chrom' control={control} label='Chromosome' disabled={loading} options={chromosomes} sx={{ minWidth: 170 }} required />
           <Typography>:</Typography>

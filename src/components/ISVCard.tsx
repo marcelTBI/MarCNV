@@ -17,8 +17,13 @@ const ISVCard: React.FC<Props> = ({ title, resultISV }) => {
       <Stack spacing={2}>
         <Typography variant='h5'>{title}</Typography>
         <Stack direction='row' spacing={2} alignItems='center'>
-          <TextField disabled label='Final Score' value={resultISV?.overall_risk ?? 'Unknown'} fullWidth />
-          <TextField disabled label='Final Decision' value={resultISV?.severity ?? 'Unknown'} fullWidth />
+          <TextField
+            disabled
+            label='Pathogenicity chance estimation'
+            value={resultISV?.overall_risk ? (resultISV.overall_risk * 100).toFixed(1) + '%' : 'Unknown'}
+            fullWidth
+          />
+          <TextField disabled label='Final Prediction' value={resultISV?.severity ?? 'Unknown'} fullWidth />
         </Stack>
       </Stack>
     </Paper>

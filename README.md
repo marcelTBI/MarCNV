@@ -16,7 +16,6 @@ CNV evaluation web for both ACMG criteria and machine learning prediction (ISV).
 
    ```shell
    REACT_APP_BACKEND_URL="0.0.0.0:8000"
-   REACT_APP_ORIGIN_URL="0.0.0.0:8000"
    ```
 
 3. Start app

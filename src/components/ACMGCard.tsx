@@ -5,6 +5,7 @@ import { Divider, Paper, Stack, TextField, Typography } from '@mui/material'
 import FormInputComboBox from './forms/FormInputComboBox'
 import { Option } from './forms/FormProps'
 import { backendRequest } from '../functions/restFetch'
+import { scoreSeverity } from '../functions/common'
 
 type FormInput = {
   section1?: Option
@@ -68,12 +69,6 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
     finalScore += getScore(`section${sec}` as SectionStrings)
   }
 
-  let finalDecision = 'Pathogenic'
-  if (finalScore <= 0.99) finalDecision = 'Likely Pathogenic'
-  if (finalScore <= 0.89) finalDecision = 'Unknown'
-  if (finalScore <= -0.89) finalDecision = 'Likely Benign'
-  if (finalScore <= -0.99) finalDecision = 'Benign'
-
   const getReason = (section: SectionStrings) => {
     const sectionMenuItem = watch(section)
     if (sectionMenuItem !== undefined && def?.[section]?.option === sectionMenuItem?.label) return def?.[section]?.reason ?? 'No reason...'
@@ -108,7 +103,7 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
         <Typography variant='h5'>{title}</Typography>
         <Stack direction='row' spacing={2} alignItems='center'>
           <TextField disabled label='Final Score' value={finalScore} color='secondary' fullWidth />
-          <TextField disabled label='Final Decision' value={finalDecision} sx={{ input: { color: 'red' } }} fullWidth />
+          <TextField disabled label='Final Prediction' value={scoreSeverity(finalScore)} sx={{ input: { color: 'red' } }} fullWidth />
         </Stack>
         <Divider />
         {['1', '2', '3', '4', '5'].map((sec) => (

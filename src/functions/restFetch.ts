@@ -22,6 +22,8 @@ export const createErrorMessage = (message: string | Array<unknown> | Record<str
     return message
   } else if (Array.isArray(message) && Object.prototype.hasOwnProperty.call(message[0], 'msg')) {
     return message[0].msg
+  } else if (!Array.isArray(message) && Object.prototype.hasOwnProperty.call(message, 'message')) {
+    return JSON.stringify(message.message)
   } else {
     return JSON.stringify(message)
   }
@@ -53,7 +55,6 @@ const fetchWithTimeout: (props: BackendRequestProps) => Promise<Response> = asyn
   const requestHeaders = new Headers(headers ?? { 'Content-Type': 'application/json' })
   requestHeaders.set('timestamp', getCurrentTime())
   requestHeaders.append('Accept', 'application/json')
-  requestHeaders.append('Origin', process.env.REACT_APP_ORIGIN_URL ?? '')
 
   // build an abort controller
   const controller = new AbortController()
@@ -79,7 +80,8 @@ export const backendRequest: (props: BackendRequestProps) => Promise<BackendResp
       let errorMessage = ''
       try {
         const detail = await response.clone().json()
-        errorMessage = createErrorMessage(detail.detail)
+        errorMessage = createErrorMessage(detail)
+        console.log(errorMessage, detail)
       } catch (error) {
         errorMessage = `Response not converted to JSON! (${getErrorMessage(error)})`
       }
