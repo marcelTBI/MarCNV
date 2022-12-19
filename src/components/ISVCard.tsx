@@ -13,7 +13,7 @@ type Props = {
 
 const ISVCard: React.FC<Props> = ({ title, resultISV }) => {
   return (
-    <Paper sx={{ padding: 2, flex: 1 }}>
+    <Paper sx={{ padding: 2, flex: 1, maxWidth: 1200 }}>
       <Stack spacing={2}>
         <Typography variant='h5'>{title}</Typography>
         <Stack direction='row' spacing={2} alignItems='center'>

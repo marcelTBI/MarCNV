@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Alert, Paper, Stack, Typography } from '@mui/material'
+import { Alert, Link, Paper, Stack, Typography } from '@mui/material'
 
 import SubmitButton from '../components/SubmitButton'
 import FormInputText from '../components/forms/FormInputText'
@@ -63,6 +63,17 @@ const validateStart = (location: string) => {
   return true
 }
 
+const validateNomenclature = (nomenclature: string) => {
+  const regexp = new RegExp('^chr(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|X|Y):[,0-9]+-[,0-9]+$')
+  if (!regexp.test(nomenclature)) return 'Nomenclature not in a proper format (chr5:123456789-234567890)'
+  const [chrom, rest] = nomenclature.split(':')
+  const [start, end] = rest.split('-')
+  const startNum = Number(start.replace(',', ''))
+  const endNum = Number(end.replace(',', ''))
+  if (startNum >= endNum) return 'End location is BEFORE start location!'
+  return true
+}
+
 const validateEnd = (end: string, start: string) => {
   const endNum = Number(end)
   const startNum = Number(start)
@@ -72,7 +83,7 @@ const validateEnd = (end: string, start: string) => {
 }
 
 const SearchCNV: React.FC<Props> = ({ submitData }) => {
-  const { handleSubmit, control, watch } = useForm<FormInput>({ defaultValues: {} })
+  const { handleSubmit, control, watch, setValue } = useForm<FormInput>({ defaultValues: {} })
   const locStart = watch('start')
 
   const [loading, setLoading] = useState(false)
@@ -94,6 +105,18 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
     <Paper sx={{ padding: 2, flex: 1 }}>
       <Stack spacing={2} alignItems='center'>
         <Typography variant='h5'>Interpretation of copy-number variants</Typography>
+        <Stack spacing={2} direction='row'>
+          <FormInputText
+            name='nomenclature'
+            control={control}
+            label='Nomenclature string'
+            disabled={loading}
+            validator={validateNomenclature}
+            sx={{ minWidth: 350 }}
+            placeholder='chr:start-end'
+            required
+          />
+        </Stack>
         <Stack spacing={2} direction='row' alignItems='center'>
           <FormInputComboBox name='chrom' control={control} label='Chromosome' disabled={loading} options={chromosomes} sx={{ minWidth: 170 }} required />
           <Typography>:</Typography>
@@ -122,6 +145,15 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
           <SubmitButton loading={loading} id='login' text='Annotate CNV' onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 220 }} />
         </Stack>
         {errorMessage && <Alert severity={'error'}>{errorMessage}</Alert>}
+        <Typography align='center' variant='body2'>
+          Further information can be found in (we also encourage you to cite it if you find this tool helpful):
+          <br />
+          <Link variant='body2' href='https://www.nature.com/articles/s41598-021-04505-z' target='_blank' rel='noreferrer'>
+            Gažiová, M., Sládeček, T., Pös, O. et al. Automated prediction of the clinical impact of structural copy number variations. Sci Rep 12, 555 (2022).
+          </Link>
+          <br />
+          Free for non-commercial use.
+        </Typography>
       </Stack>
     </Paper>
   )

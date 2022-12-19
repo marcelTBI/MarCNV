@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Paper, Slider, Stack, TextField, Typography } from '@mui/material'
 import { scoreSeverity } from '../functions/common'
+import { Container } from '@mui/system'
 
 type Props = {
   title: string
@@ -20,14 +21,22 @@ const CombinedCard: React.FC<Props> = ({ title, scoreACMG, riskISV }) => {
   const finalScore = scoreACMG + strategy * (riskISV - 0.5)
 
   return (
-    <Paper sx={{ padding: 2, flex: 1 }}>
+    <Paper sx={{ padding: 2, flex: 1, maxWidth: 1200 }}>
       <Stack spacing={2}>
         <Typography variant='h5'>{title}</Typography>
-        <Slider value={strategy} onChange={(_, value) => setStrategy(value as number)} valueLabelDisplay='auto' marks={marks} max={2.2} step={null} />
+        <Container>
+          <Slider value={strategy} onChange={(_, value) => setStrategy(value as number)} valueLabelDisplay='off' marks={marks} max={2.2} step={null} />
+        </Container>
         <Stack direction='row' spacing={2} alignItems='center' marginTop={4}>
           <TextField disabled label='Final Score' value={finalScore} fullWidth />
           <TextField disabled label='Final Prediction' value={scoreSeverity(finalScore)} fullWidth />
         </Stack>
+        <Typography variant='body2'>
+          Combined prediction score is counted as: ACMG + r(MLP - 0.5), where ACMG is the ACMG score, MLP is the probability of being pathogenic from machine
+          learning,
+          <br />
+          and r is 0 for conservative, 1.1 for balanced, and 2.2 for progressive strategy.
+        </Typography>
       </Stack>
     </Paper>
   )

@@ -49,7 +49,7 @@ const SearchPage: React.FC = () => {
         <SearchCNV submitData={submitData} />
         <Stack spacing={3}>
           {resultISV && <CombinedCard title={'Combined prediction' + cnvString} riskISV={resultISV.overall_risk} scoreACMG={finalScore} />}
-          {resultISV && <ISVCard title={'ISV prediction' + cnvString} resultISV={resultISV} />}
+          {resultISV && <ISVCard title={'Machine learning prediction' + cnvString} resultISV={resultISV} />}
           {Object.keys(pickedSections).length !== 0 && (
             <ACMGCard title={'ACMG guidelines' + cnvString} disabled={searchQuery === undefined} def={pickedSections} cnvType={searchQuery?.cnvType} />
           )}
