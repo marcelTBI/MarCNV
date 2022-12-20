@@ -6,6 +6,7 @@ import FormInputComboBox from './forms/FormInputComboBox'
 import { Option } from './forms/FormProps'
 import { backendRequest } from '../functions/restFetch'
 import { scoreSeverity } from '../functions/common'
+import LabeledText from './LabeledText'
 
 type FormInput = {
   section1?: Option
@@ -68,6 +69,7 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
   for (const sec of ['1', '2', '3', '4', '5']) {
     finalScore += getScore(`section${sec}` as SectionStrings)
   }
+  const finalPrediction = scoreSeverity(finalScore)
 
   const getReason = (section: SectionStrings) => {
     const sectionMenuItem = watch(section)
@@ -102,8 +104,8 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
       <Stack spacing={2}>
         <Typography variant='h5'>{title}</Typography>
         <Stack direction='row' spacing={2} alignItems='center'>
-          <TextField disabled label='Final Score' value={finalScore} color='secondary' fullWidth />
-          <TextField disabled label='Final Prediction' value={scoreSeverity(finalScore)} sx={{ input: { color: 'red' } }} fullWidth />
+          <LabeledText label='Final Score' text={finalScore.toString()} />
+          <LabeledText label='Final Prediction' text={finalPrediction.label} color={finalPrediction.color} />
         </Stack>
         <Divider />
         {['1', '2', '3', '4', '5'].map((sec) => (
