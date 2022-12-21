@@ -65,7 +65,6 @@ const fetchWithTimeout: (props: BackendRequestProps) => Promise<Response> = asyn
 
   // fetch
   const response = await fetch(endpoint, { method: method, headers: requestHeaders, signal: controller.signal, body: requestBody })
-  console.log(response, endpoint)
 
   // clear timeout and return
   clearTimeout(timeoutID) // important, otherwise the timeout is not reset and continues => abort request
@@ -82,12 +81,12 @@ export const backendRequest: (props: BackendRequestProps) => Promise<BackendResp
       const json = await response.json()
       return { status: response.status, errorMessage: response.status === 200 ? '' : createErrorMessage(json), json: json }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       return { status: response.status, errorMessage: `Response not converted to JSON! (${getErrorMessage(error)})`, json: {} }
     }
   } catch (error) {
     // this is probably timeout error (TODO parse error to make sure?)
-    console.log(error)
+    console.error(error)
     return { status: 408, errorMessage: getErrorMessage(error), json: {} }
   }
 }
