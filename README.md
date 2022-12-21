@@ -1,6 +1,6 @@
 # MarCNV - CNV evaluation web
 
-CNV evaluation web for both ACMG criteria and machine learning prediction (ISV).
+CNV evaluation web for ACMG criteria, machine learning prediction (ISV), and combined approach according to the publication ['https://www.nature.com/articles/s41598-021-04505-z'](Gažiová, M., Sládeček, T., Pös, O. et al. Automated prediction of the clinical impact of structural copy number variations. Sci Rep 12, 555 (2022).).
 
 ## Development
 
