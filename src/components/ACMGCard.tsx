@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Divider, Paper, Stack, TextField, Typography } from '@mui/material'
 
-import FormInputComboBox from './forms/FormInputComboBox'
 import { Option } from './forms/FormProps'
 import { backendRequest } from '../functions/restFetch'
 import { scoreSeverity } from '../functions/common'
+import FormInputComboBox from './forms/FormInputComboBox'
 import LabeledText from './LabeledText'
 
 type FormInput = {
