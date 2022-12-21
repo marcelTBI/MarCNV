@@ -76,22 +76,18 @@ export const backendRequest: (props: BackendRequestProps) => Promise<BackendResp
   try {
     // try to fetch
     const response = await fetchWithTimeout(props)
-    // and resolve all errors
-    if (response.status !== 200) {
-      let errorMessage = ''
-      try {
-        const detail = await response.clone().json()
-        errorMessage = createErrorMessage(detail)
-        console.log(errorMessage, detail)
-      } catch (error) {
-        errorMessage = `Response not converted to JSON! (${getErrorMessage(error)})`
-      }
-      return { status: response.status, errorMessage: errorMessage, json: {} }
-    } else {
-      return { status: response.status, errorMessage: '', json: await response.json() }
+
+    // try to convert to json
+    try {
+      const json = await response.json()
+      return { status: response.status, errorMessage: response.status === 200 ? '' : createErrorMessage(json), json: json }
+    } catch (error) {
+      console.log(error)
+      return { status: response.status, errorMessage: `Response not converted to JSON! (${getErrorMessage(error)})`, json: {} }
     }
   } catch (error) {
     // this is probably timeout error (TODO parse error to make sure?)
+    console.log(error)
     return { status: 408, errorMessage: getErrorMessage(error), json: {} }
   }
 }
