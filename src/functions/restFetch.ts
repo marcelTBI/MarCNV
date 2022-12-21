@@ -65,6 +65,7 @@ const fetchWithTimeout: (props: BackendRequestProps) => Promise<Response> = asyn
 
   // fetch
   const response = await fetch(endpoint, { method: method, headers: requestHeaders, signal: controller.signal, body: requestBody })
+  console.log(response, endpoint)
 
   // clear timeout and return
   clearTimeout(timeoutID) // important, otherwise the timeout is not reset and continues => abort request
