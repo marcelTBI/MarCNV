@@ -3,13 +3,13 @@ import { Button, ButtonProps, CircularProgress } from '@mui/material'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 
 type Props = ButtonProps & {
-  text: string
+  children: React.ReactNode
   loading?: boolean
 }
 
 const SubmitButton: React.FC<Props> = ({
   id,
-  text,
+  children,
   loading = false,
   startIcon = <CheckCircleOutlineIcon fontSize='inherit' />,
   variant = 'contained',
@@ -17,6 +17,8 @@ const SubmitButton: React.FC<Props> = ({
   ...props
 }) => {
   const buttonId = `${id}_button`
+  const loadingSize = props.size === 'small' ? 18 : props.size === 'large' ? 22 : 20
+
   return (
     <Button
       {...props}
@@ -24,9 +26,9 @@ const SubmitButton: React.FC<Props> = ({
       disabled={loading || disabled}
       variant={variant}
       type='submit'
-      startIcon={loading ? <CircularProgress color='inherit' size={16} /> : startIcon}
+      startIcon={loading ? <CircularProgress color='inherit' size={loadingSize} /> : startIcon}
     >
-      {text}
+      {children}
     </Button>
   )
 }

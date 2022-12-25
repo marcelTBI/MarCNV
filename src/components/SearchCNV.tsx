@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Alert, Divider, Link, Paper, Stack, Typography } from '@mui/material'
 
@@ -58,6 +58,20 @@ const cnvTypes: Option[] = [
   { id: 1, label: 'dup' },
 ]
 
+type Example = {
+  cnvType: Option
+  nomenclature: string
+  label: string
+}
+
+const examples: Example[] = [
+  { cnvType: cnvTypes[0], nomenclature: 'chr1:560,000-21,600,000', label: '1p36 microdel.' },
+  { cnvType: cnvTypes[0], nomenclature: 'chr4:80,000-2,020,000', label: 'Wolf-Hirschhorn' },
+  { cnvType: cnvTypes[0], nomenclature: 'chr5:0-15,680,000', label: 'Cri-du-chat' },
+  { cnvType: cnvTypes[0], nomenclature: 'chr15:22,760,000-28,560,000', label: 'Willi/Angelman' },
+  { cnvType: cnvTypes[0], nomenclature: 'chr22:18,660,000-21,520,000', label: 'DiGeorge' },
+]
+
 const validateStart = (location: string) => {
   const locNum = Number(location)
   if (isNaN(locNum)) return 'Provided location is not a number!'
@@ -100,16 +114,23 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
+  const updateRanges = useCallback(
+    (nomenclature: string) => {
+      const interval = nomenclatureToInterval(nomenclature)
+      if (interval) {
+        const [chrom, startNum, endNum] = interval
+        setValue('start', startNum.toString())
+        setValue('end', endNum.toString())
+        setValue('chrom', chromosomes.find((value) => value.label === chrom) as Option)
+      }
+    },
+    [setValue]
+  )
+
   // convert nomenclature to normal interval
   useEffect(() => {
-    const interval = nomenclatureToInterval(nomenclature)
-    if (interval) {
-      const [chrom, startNum, endNum] = interval
-      setValue('start', startNum.toString())
-      setValue('end', endNum.toString())
-      setValue('chrom', chromosomes.find((value) => value.label === chrom) as Option)
-    }
-  }, [nomenclature, setValue])
+    updateRanges(nomenclature)
+  }, [nomenclature, updateRanges])
 
   // convert normal interval to nomenclature - does not work due to update cycles
   /* useEffect(() => {
@@ -143,9 +164,16 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
     setLoading(false)
   }
 
+  const runExample = async (example: Example) => {
+    setValue('nomenclature', example.nomenclature)
+    updateRanges(example.nomenclature)
+    setValue('cnvType', example.cnvType)
+    await handleSubmit(onSubmit)()
+  }
+
   return (
     <Paper sx={{ padding: 2, flex: 1 }}>
-      <Stack spacing={3} alignItems='center'>
+      <Stack spacing={2} alignItems='center'>
         <Typography variant='h5'>Interpretation of copy-number variants</Typography>
         <Stack spacing={2} direction='row'>
           <Stack spacing={2} alignItems='center'>
@@ -157,7 +185,7 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
                 disabled={loading}
                 validator={validateNomenclature}
                 sx={{ minWidth: 350 }}
-                placeholder='chr:start-end'
+                placeholder='e.g. chr1:15,560,138-15,602,954'
               />
               <Typography> OR </Typography>
             </Stack>
@@ -190,10 +218,20 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
           <Divider orientation='vertical' flexItem />
           <Stack spacing={2} direction='row' alignItems='center'>
             <FormInputComboBox name='cnvType' control={control} label='CNV type' disabled={loading} options={cnvTypes} sx={{ minWidth: 170 }} required />
-            <SubmitButton loading={loading} id='login' text={`Annotate (${getSize()})`} onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 235 }} />
+            <SubmitButton loading={loading} id='login' onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 235 }}>
+              Annotate ({getSize()})
+            </SubmitButton>
           </Stack>
         </Stack>
         {errorMessage && <Alert severity={'error'}>{errorMessage}</Alert>}
+        <Divider flexItem>Examples</Divider>
+        <Stack spacing={2} direction='row'>
+          {examples.map((example) => (
+            <SubmitButton variant='contained' key={example.nomenclature} size='small' loading={loading} onClick={() => runExample(example)}>
+              {example.label} <br /> {example.nomenclature}
+            </SubmitButton>
+          ))}
+        </Stack>
         <Typography align='center' variant='body2'>
           Further information can be found in (we also encourage you to cite it if you find this tool helpful):
           <br />
