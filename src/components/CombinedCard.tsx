@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Paper, Slider, Stack, Typography } from '@mui/material'
+import { Container, Paper, Slider, Stack, Tooltip, Typography } from '@mui/material'
+
 import { scoreSeverity } from '../functions/common'
-import { Container } from '@mui/system'
 import LabeledText from './LabeledText'
 
 type Props = {
@@ -11,9 +11,9 @@ type Props = {
 }
 
 const marks = [
-  { value: 0, label: 'Conservative' },
-  { value: 1.1, label: 'Balanced' },
-  { value: 2.2, label: 'Progressive' },
+  { value: 0, label: 'Conservative', tooltip: 'Take only ACMG criteria into account' },
+  { value: 1.1, label: 'Balanced', tooltip: 'ACMG criteria and machine learning with similar impact' },
+  { value: 2.2, label: 'Progressive', tooltip: 'Rely heavily on the machine learning approach' },
 ]
 
 const CombinedCard: React.FC<Props> = ({ title, scoreACMG, riskISV }) => {
@@ -27,17 +27,39 @@ const CombinedCard: React.FC<Props> = ({ title, scoreACMG, riskISV }) => {
       <Stack spacing={2}>
         <Typography variant='h5'>{title}</Typography>
         <Container>
-          <Slider value={strategy} onChange={(_, value) => setStrategy(value as number)} valueLabelDisplay='off' marks={marks} max={2.2} step={null} />
+          <Slider
+            value={strategy}
+            onChange={(_, value) => setStrategy(value as number)}
+            valueLabelDisplay='off'
+            marks={marks.map((mark) => ({
+              value: mark.value,
+              label: (
+                <Tooltip title={mark.tooltip}>
+                  <Typography variant='body2'>{mark.label}</Typography>
+                </Tooltip>
+              ),
+            }))}
+            max={2.2}
+            step={null}
+            sx={{
+              '& .MuiSlider-markLabel[data-index="0"]': {
+                transform: 'translateX(-28%)',
+              },
+              '& .MuiSlider-markLabel[data-index="2"]': {
+                transform: 'translateX(-72%)',
+              },
+            }}
+          />
         </Container>
         <Stack direction='row' spacing={2} alignItems='center' marginTop={4}>
+          <LabeledText label='Final Prediction' text={finalPrediction.label} color='black' fillColor={finalPrediction.fillColor} />
           <LabeledText label='Final Score' text={finalScore.toString()} />
-          <LabeledText label='Final Prediction' text={finalPrediction.label} color={finalPrediction.color} />
         </Stack>
         <Typography variant='body2'>
           Combined prediction score is counted as: ACMG + r(MLP - 0.5), where ACMG is the ACMG score, MLP is the probability of being pathogenic from machine
           learning,
           <br />
-          and r is 0 for conservative, 1.1 for balanced, and 2.2 for progressive strategy.
+          and r is 0 for "Conservative", 1.1 for "Balanced", and 2.2 for "Progressive" strategy.
         </Typography>
       </Stack>
     </Paper>

@@ -10,7 +10,17 @@ type FormInputTextProps = FormProps &
     validator?: (val: string) => string | boolean
   }
 
-const FormInputText: React.FC<FormInputTextProps> = ({ name, control, label, type = 'text', required = false, minLength, validator, ...props }) => {
+const FormInputText: React.FC<FormInputTextProps> = ({
+  name,
+  control,
+  label,
+  type = 'text',
+  required = false,
+  minLength,
+  validator,
+  onChange: onChangeSupp,
+  ...props
+}) => {
   // define validation rules
   const ruleRequired = required ? { required: 'Field is required!' } : {}
   const ruleMin =
@@ -35,7 +45,10 @@ const FormInputText: React.FC<FormInputTextProps> = ({ name, control, label, typ
           {...props}
           helperText={error ? error.message : null}
           error={!!error}
-          onChange={onChange}
+          onChange={(event) => {
+            onChange(event)
+            onChangeSupp?.(event)
+          }}
           value={value}
           variant='outlined'
           type={type}

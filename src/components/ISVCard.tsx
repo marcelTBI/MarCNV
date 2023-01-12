@@ -34,8 +34,8 @@ const ISVCard: React.FC<Props> = ({ title, resultISV }) => {
       <Stack spacing={2}>
         <Typography variant='h5'>{title}</Typography>
         <Stack direction='row' spacing={2} alignItems='center'>
+          <LabeledText label='Prediction' text={finalPrediction.label} color='black' fillColor={finalPrediction.fillColor} />
           <LabeledText label='Pathogenicity chance estimation' text={resultISV?.overall_risk ? (resultISV.overall_risk * 100).toFixed(1) + '%' : 'Unknown'} />
-          <LabeledText label='Final Prediction' text={finalPrediction.label} color={finalPrediction.color} />
         </Stack>
       </Stack>
     </Paper>

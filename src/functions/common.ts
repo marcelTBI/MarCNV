@@ -1,9 +1,9 @@
 export const predictions = {
-  benign: { label: 'Benign', color: 'green' },
-  likelyBenign: { label: 'Likely Benign', color: 'palegreen' },
-  unknown: { label: 'Unknown', color: 'grey' },
-  likelyPathogenic: { label: 'Likely Pathogenic', color: 'tomato' },
-  pathogenic: { label: 'Pathogenic', color: 'red' },
+  benign: { label: 'Benign', color: 'green', fillColor: '#008000' },
+  likelyBenign: { label: 'Likely Benign', color: 'palegreen', fillColor: '#44C044' },
+  unknown: { label: 'Unknown', color: 'grey', fillColor: '#B0B0B0' },
+  likelyPathogenic: { label: 'Likely Pathogenic', color: 'tomato', fillColor: '#FF8888' },
+  pathogenic: { label: 'Pathogenic', color: 'red', fillColor: '#FF4444' },
 }
 
 export const scoreSeverity = (finalScore: number) => {

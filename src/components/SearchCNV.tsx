@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Alert, Divider, Link, Paper, Stack, Typography } from '@mui/material'
+import { Alert, Box, Divider, Link, Paper, Stack, Typography } from '@mui/material'
 
 import SubmitButton from '../components/SubmitButton'
 import FormInputText from '../components/forms/FormInputText'
@@ -54,8 +54,8 @@ const chromosomes: Option[] = [
 ]
 
 const cnvTypes: Option[] = [
-  { id: 0, label: 'del' },
-  { id: 1, label: 'dup' },
+  { id: 0, label: 'Deletion' },
+  { id: 1, label: 'Duplication' },
 ]
 
 type Example = {
@@ -108,8 +108,8 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
   const { handleSubmit, control, watch, setValue } = useForm<FormInput>({ defaultValues: {} })
   const locStart = watch('start')
   const locEnd = watch('end')
-  // const locChrom = watch('chrom')
-  const nomenclature = watch('nomenclature')
+  const locChrom = watch('chrom')
+  //const nomenclature = watch('nomenclature')
 
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -127,18 +127,17 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
     [setValue]
   )
 
-  // convert nomenclature to normal interval
+  /* // convert nomenclature to normal interval (converted directly in onChange callback)
   useEffect(() => {
     updateRanges(nomenclature)
-  }, [nomenclature, updateRanges])
+  }, [nomenclature, updateRanges])*/
 
-  // convert normal interval to nomenclature - does not work due to update cycles
-  /* useEffect(() => {
-    console.log(locStart, locEnd, locChrom)
+  // convert normal interval to nomenclature
+  useEffect(() => {
     if (locChrom && locStart && locEnd) {
       setValue('nomenclature', `${locChrom.label}:${locStart.toLocaleString()}-${locEnd.toLocaleString()}`)
     }
-  }, [locStart, locEnd, locChrom]) */
+  }, [locStart, locEnd, locChrom, setValue])
 
   const getSize = () => {
     if (locStart && locEnd && !isNaN(Number(locEnd)) && !isNaN(Number(locStart))) {
@@ -158,7 +157,7 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
       chrom: data.chrom.label,
       start: Number(data.start),
       end: Number(data.end),
-      cnvType: data.cnvType.label === 'del' ? 'loss' : 'gain',
+      cnvType: data.cnvType.label === 'Deletion' ? 'loss' : 'gain',
     })
     setErrorMessage(error)
     setLoading(false)
@@ -175,53 +174,70 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
     <Paper sx={{ padding: 2, flex: 1 }}>
       <Stack spacing={2} alignItems='center'>
         <Typography variant='h5'>Interpretation of copy-number variants</Typography>
-        <Stack spacing={2} direction='row'>
-          <Stack spacing={2} alignItems='center'>
-            <Stack spacing={2} direction='row' alignItems='center'>
-              <FormInputText
-                name='nomenclature'
-                control={control}
-                label='Nomenclature string'
-                disabled={loading}
-                validator={validateNomenclature}
-                sx={{ minWidth: 350 }}
-                placeholder='e.g. chr1:15,560,138-15,602,954'
-              />
-              <Typography> OR </Typography>
-            </Stack>
-            <Stack spacing={2} direction='row' alignItems='center'>
-              <FormInputComboBox name='chrom' control={control} label='Chromosome' disabled={loading} options={chromosomes} sx={{ minWidth: 170 }} required />
-              <Typography>:</Typography>
-              <FormInputText
-                name='start'
-                control={control}
-                label='Location start'
-                inputProps={{ inputMode: 'numeric' }}
-                disabled={loading}
-                validator={validateStart}
-                sx={{ minWidth: 170 }}
-                required
-              />
-              <Typography>-</Typography>
-              <FormInputText
-                name='end'
-                control={control}
-                label='Location end'
-                inputProps={{ inputMode: 'numeric' }}
-                disabled={loading}
-                validator={(value) => validateEnd(value, locStart)}
-                sx={{ minWidth: 170 }}
-                required
-              />
-            </Stack>
-          </Stack>
-          <Divider orientation='vertical' flexItem />
-          <Stack spacing={2} direction='row' alignItems='center'>
-            <FormInputComboBox name='cnvType' control={control} label='CNV type' disabled={loading} options={cnvTypes} sx={{ minWidth: 170 }} required />
-            <SubmitButton loading={loading} id='login' onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 235 }}>
-              Annotate ({getSize()})
-            </SubmitButton>
-          </Stack>
+        <Stack alignItems='center'>
+          <Typography variant='body2' component='div'>
+            The clinical impact of an input CNV is predicted with two complementary tools and their combination:
+          </Typography>
+          <Typography variant='body2' component='div'>
+            <Box sx={{ fontWeight: 'bold', display: 'inline' }}>Machine learning prediction</Box> - impact of a CNV is predicted based on CNVs with known impact
+            and their similarity to input CNV <br />
+            <Box sx={{ fontWeight: 'bold', display: 'inline' }}>ACMG guidelines</Box> - impact of a CNV is predicted based on automatic evaluation of{' '}
+            <Link variant='body2' href='https://pubmed.ncbi.nlm.nih.gov/31690835' target='_blank' rel='noreferrer'>
+              ACMG guidelines
+            </Link>
+            <br />
+            <Box sx={{ fontWeight: 'bold', display: 'inline' }}>Combined prediction</Box> - combination of the two previous approaches
+          </Typography>
+          <Typography variant='body2' component='div'>
+            Usage: fill out either "Nomenclature input" or "Positional input" section or click on one of the "Examples"
+          </Typography>
+        </Stack>
+        <Divider flexItem>Nomenclature input</Divider>
+        <Stack spacing={2} direction='row' alignItems='center'>
+          <FormInputText
+            name='nomenclature'
+            control={control}
+            label='Nomenclature string'
+            disabled={loading}
+            validator={validateNomenclature}
+            sx={{ minWidth: 350 }}
+            placeholder='e.g. chr1:15,560,138-15,602,954'
+            onChange={(event) => updateRanges(event.target.value)}
+          />
+          <FormInputComboBox name='cnvType' control={control} label='CNV type' disabled={loading} options={cnvTypes} sx={{ minWidth: 170 }} required />
+          <SubmitButton loading={loading} id='login' onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 235 }}>
+            Annotate ({getSize()})
+          </SubmitButton>
+        </Stack>
+        <Divider flexItem>Positional input</Divider>
+        <Stack spacing={2} direction='row' alignItems='center'>
+          <FormInputComboBox name='chrom' control={control} label='Chromosome' disabled={loading} options={chromosomes} sx={{ minWidth: 170 }} required />
+          <Typography>:</Typography>
+          <FormInputText
+            name='start'
+            control={control}
+            label='Location start'
+            inputProps={{ inputMode: 'numeric' }}
+            disabled={loading}
+            validator={validateStart}
+            sx={{ minWidth: 170 }}
+            required
+          />
+          <Typography>-</Typography>
+          <FormInputText
+            name='end'
+            control={control}
+            label='Location end'
+            inputProps={{ inputMode: 'numeric' }}
+            disabled={loading}
+            validator={(value) => validateEnd(value, locStart)}
+            sx={{ minWidth: 170 }}
+            required
+          />
+          <FormInputComboBox name='cnvType' control={control} label='CNV type' disabled={loading} options={cnvTypes} sx={{ minWidth: 170 }} required />
+          <SubmitButton loading={loading} id='login' onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 235 }}>
+            Annotate ({getSize()})
+          </SubmitButton>
         </Stack>
         {errorMessage && <Alert severity={'error'}>{errorMessage}</Alert>}
         <Divider flexItem>Examples</Divider>

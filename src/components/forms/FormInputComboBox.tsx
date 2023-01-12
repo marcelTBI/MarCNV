@@ -21,6 +21,7 @@ const FormInputComboBox: React.FC<FormInputComboBoxProps> = ({
   options = [],
   variant = 'outlined',
   multiple = false,
+  onChange: onChangeSupp,
   ...props
 }) => {
   // define validation rules
@@ -40,7 +41,10 @@ const FormInputComboBox: React.FC<FormInputComboBoxProps> = ({
           id={`${name}-select`}
           options={keepSelectedOption && !multiple ? [value, ...options] : options}
           value={value}
-          onChange={(_, data) => onChange(data)}
+          onChange={(event, data, reason) => {
+            onChange(data)
+            onChangeSupp?.(event, data, reason)
+          }}
           renderInput={(params) => (
             <TextField
               {...params}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Box, Stack } from '@mui/material'
 
 import SearchCNV, { CNVStats } from '../components/SearchCNV'
@@ -11,6 +11,7 @@ const SearchPage: React.FC = () => {
   const [pickedSections, setPickedSections] = useState<SectionResponses>({})
   const [searchQuery, setSearchQuery] = useState<CNVStats | undefined>()
   const [resultISV, setResultISV] = useState<ResultISV | undefined>()
+  const [acmgScore, setAcmgScore] = useState<number | undefined>()
 
   const submitData = async (data: CNVStats) => {
     // query all APIs
@@ -35,9 +36,15 @@ const SearchPage: React.FC = () => {
     return res ?? resultISV.errorMessage
   }
 
-  const finalScore = Object.values(pickedSections)
-    .map((response) => response.score)
-    .reduce((partialSum, a) => partialSum + a, 0)
+  const onChangeScore = useCallback((num: number) => {
+    setAcmgScore(num)
+  }, [])
+
+  const finalScore =
+    acmgScore ??
+    Object.values(pickedSections)
+      .map((response) => response.score)
+      .reduce((partialSum, a) => partialSum + a, 0)
 
   const cnvString = searchQuery
     ? ` - ${searchQuery.chrom}:${searchQuery.start.toLocaleString()}-${searchQuery.end.toLocaleString()} (${searchQuery.cnvType})`
@@ -50,8 +57,8 @@ const SearchPage: React.FC = () => {
         <Stack spacing={3}>
           {resultISV && <CombinedCard title={'Combined prediction' + cnvString} riskISV={resultISV.overall_risk} scoreACMG={finalScore} />}
           {resultISV && <ISVCard title={'Machine learning prediction' + cnvString} resultISV={resultISV} />}
-          {Object.keys(pickedSections).length !== 0 && (
-            <ACMGCard title={'ACMG guidelines' + cnvString} disabled={searchQuery === undefined} def={pickedSections} cnvType={searchQuery?.cnvType} />
+          {Object.keys(pickedSections).length !== 0 && searchQuery && (
+            <ACMGCard title={'ACMG guidelines' + cnvString} def={pickedSections} cnvType={searchQuery.cnvType} onChangeScore={onChangeScore} />
           )}
         </Stack>
       </Stack>

@@ -35,9 +35,10 @@ type SectionStrings = 'section1' | 'section2' | 'section3' | 'section4' | 'secti
 
 type Props = {
   title: string
-  disabled: boolean
-  def?: SectionResponses
-  cnvType?: 'gain' | 'loss'
+  disabled?: boolean
+  def: SectionResponses
+  cnvType: 'gain' | 'loss'
+  onChangeScore?: (score: number) => void
 }
 
 type Section = {
@@ -52,7 +53,7 @@ const getSection = (section: string, acmg: Record<string, Section>) => {
   return []
 }
 
-const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
+const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType, onChangeScore }) => {
   const [acmg, setAcmg] = useState({})
 
   const { control, setValue, watch } = useForm<FormInput>({ defaultValues: {} })
@@ -71,14 +72,30 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
   }
   const finalPrediction = scoreSeverity(finalScore)
 
-  const getReason = (section: SectionStrings) => {
+  const isModifiedSection = (section: SectionStrings) => {
     const sectionMenuItem = watch(section)
-    if (sectionMenuItem !== undefined && def?.[section]?.option === sectionMenuItem?.label) return def?.[section]?.reason ?? 'No reason...'
-    const sectionInfo = sectionMenuItem?.value
-    if (!sectionInfo) return 'No reason...'
-    return sectionInfo?.['Evidence'] ?? 'No reason...'
+    // is the section modified?
+    return sectionMenuItem !== undefined && def?.[section]?.option !== sectionMenuItem?.label
   }
 
+  const modifiedSections = ['1', '2', '3', '4', '5']
+    .filter((sec) => isModifiedSection(`section${sec}` as SectionStrings))
+    .map((sec) => def?.[`section${sec}` as SectionStrings]?.option)
+
+  const getReason = (section: SectionStrings) => {
+    const sectionMenuItem = watch(section)
+    // is the section unmodified and filled?
+    if (sectionMenuItem !== undefined && def?.[section]?.option === sectionMenuItem?.label) return def?.[section]?.reason ?? 'No reason...'
+    // if not, return 'Evidence' if found
+    return sectionMenuItem?.value?.['Evidence'] ?? 'No reason...'
+  }
+
+  // is the finalScore changes, notify parent
+  useEffect(() => {
+    onChangeScore?.(finalScore)
+  }, [finalScore, onChangeScore])
+
+  // set the predicted values when the acmg data is loaded (this is probably useEffect that can be removed)
   useEffect(() => {
     for (const sec of ['1', '2', '3', '4', '5']) {
       if (def?.[`section${sec}` as SectionStrings]) {
@@ -90,6 +107,7 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
     }
   }, [def, acmg, setValue])
 
+  // fetch acmg data
   useEffect(() => {
     const fetchACMG = async () => {
       const { json } = await backendRequest({ endpoint: `${process.env.REACT_APP_BACKEND_URL}/api/global/acmg_text/${cnvType}` })
@@ -102,10 +120,17 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType }) => {
   return (
     <Paper sx={{ padding: 2, flex: 1 }}>
       <Stack spacing={2}>
-        <Typography variant='h5'>{title}</Typography>
+        <Stack direction='row' alignItems='center' display='flex' justifyContent='space-between'>
+          <Typography variant='h5'>{title}</Typography>
+          {modifiedSections.length > 0 && (
+            <Typography variant='body2' sx={{ color: 'red' }}>
+              Modified (predicted: {modifiedSections.join(', ')})
+            </Typography>
+          )}
+        </Stack>
         <Stack direction='row' spacing={2} alignItems='center'>
-          <LabeledText label='Final Score' text={finalScore.toString()} />
-          <LabeledText label='Final Prediction' text={finalPrediction.label} color={finalPrediction.color} />
+          <LabeledText label='Prediction' text={finalPrediction.label} color='black' fillColor={finalPrediction.fillColor} />
+          <LabeledText label='Score' text={finalScore.toString()} />
         </Stack>
         <Divider />
         {['1', '2', '3', '4', '5'].map((sec) => (
