@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Container, Paper, Slider, Stack, Tooltip, Typography } from '@mui/material'
 
-import { scoreSeverity } from '../functions/common'
+import { roundNumber, scoreSeverity } from '../functions/common'
 import LabeledText from './LabeledText'
 
 type Props = {
@@ -52,8 +52,8 @@ const CombinedCard: React.FC<Props> = ({ title, scoreACMG, riskISV }) => {
           />
         </Container>
         <Stack direction='row' spacing={2} alignItems='center' marginTop={4}>
-          <LabeledText label='Final Prediction' text={finalPrediction.label} color='black' fillColor={finalPrediction.fillColor} />
-          <LabeledText label='Final Score' text={finalScore.toString()} />
+          <LabeledText label='Combined Prediction' text={finalPrediction.label} color='white' fillColor={finalPrediction.fillColor} />
+          <LabeledText label='Combined Score' text={roundNumber(finalScore).toString()} />
         </Stack>
         <Typography variant='body2'>
           Combined prediction score is counted as: ACMG + r(MLP - 0.5), where ACMG is the ACMG score, MLP is the probability of being pathogenic from machine

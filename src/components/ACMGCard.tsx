@@ -4,7 +4,7 @@ import { Divider, Paper, Stack, TextField, Typography } from '@mui/material'
 
 import { Option } from './forms/FormProps'
 import { backendRequest } from '../functions/restFetch'
-import { scoreSeverity } from '../functions/common'
+import { roundNumber, scoreSeverity } from '../functions/common'
 import FormInputComboBox from './forms/FormInputComboBox'
 import LabeledText from './LabeledText'
 
@@ -129,8 +129,8 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType, onChangeScor
           )}
         </Stack>
         <Stack direction='row' spacing={2} alignItems='center'>
-          <LabeledText label='Prediction' text={finalPrediction.label} color='black' fillColor={finalPrediction.fillColor} />
-          <LabeledText label='Score' text={finalScore.toString()} />
+          <LabeledText label='Prediction' text={finalPrediction.label} color='white' fillColor={finalPrediction.fillColor} />
+          <LabeledText label='Score' text={roundNumber(finalScore).toString()} />
         </Stack>
         <Divider />
         {['1', '2', '3', '4', '5'].map((sec) => (

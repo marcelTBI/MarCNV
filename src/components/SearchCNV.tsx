@@ -65,7 +65,7 @@ type Example = {
 }
 
 const examples: Example[] = [
-  { cnvType: cnvTypes[0], nomenclature: 'chr1:560,000-21,600,000', label: '1p36 microdel.' },
+  { cnvType: cnvTypes[0], nomenclature: 'chr16:34,289,161-34,490,212', label: 'Benign DUP. 16p11.2' },
   { cnvType: cnvTypes[0], nomenclature: 'chr4:80,000-2,020,000', label: 'Wolf-Hirschhorn' },
   { cnvType: cnvTypes[0], nomenclature: 'chr5:0-15,680,000', label: 'Cri-du-chat' },
   { cnvType: cnvTypes[0], nomenclature: 'chr15:22,760,000-28,560,000', label: 'Willi/Angelman' },
@@ -174,9 +174,10 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
     <Paper sx={{ padding: 2, flex: 1 }}>
       <Stack spacing={2} alignItems='center'>
         <Typography variant='h5'>Interpretation of copy-number variants</Typography>
-        <Stack alignItems='center'>
+        <Stack alignItems='flex-start'>
           <Typography variant='body2' component='div'>
-            The clinical impact of an input CNV is predicted with two complementary tools and their combination:
+            Method for automated prediction of pathogenicity of CNVs. The clinical impact of an input CNV is predicted with two complementary tools and their
+            combination:
           </Typography>
           <Typography variant='body2' component='div'>
             <Box sx={{ fontWeight: 'bold', display: 'inline' }}>Machine learning prediction</Box> - impact of a CNV is predicted based on CNVs with known impact
@@ -188,12 +189,21 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
             <br />
             <Box sx={{ fontWeight: 'bold', display: 'inline' }}>Combined prediction</Box> - combination of the two previous approaches
           </Typography>
-          <Typography variant='body2' component='div'>
-            Usage: fill out either "Nomenclature input" or "Positional input" section or click on one of the "Examples"
+          <Typography variant='body2'>
+            Further information can be found in (we also encourage you to cite it if you find this tool helpful):
+            <br />
+            <Link variant='body2' href='https://www.nature.com/articles/s41598-021-04505-z' target='_blank' rel='noreferrer'>
+              Gažiová, M., Sládeček, T., Pös, O. et al. Automated prediction of the clinical impact of structural copy number variations. Sci Rep 12, 555
+              (2022).
+            </Link>
+            <br />
+            Free for non-commercial use.
+            <br />
+            Usage: Define your CNV finding by one of the option below:
           </Typography>
         </Stack>
         <Divider flexItem>Nomenclature input</Divider>
-        <Stack spacing={2} direction='row' alignItems='center'>
+        <Stack spacing={2} direction='row' alignItems='center' alignSelf='flex-start'>
           <FormInputText
             name='nomenclature'
             control={control}
@@ -248,15 +258,6 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
             </SubmitButton>
           ))}
         </Stack>
-        <Typography align='center' variant='body2'>
-          Further information can be found in (we also encourage you to cite it if you find this tool helpful):
-          <br />
-          <Link variant='body2' href='https://www.nature.com/articles/s41598-021-04505-z' target='_blank' rel='noreferrer'>
-            Gažiová, M., Sládeček, T., Pös, O. et al. Automated prediction of the clinical impact of structural copy number variations. Sci Rep 12, 555 (2022).
-          </Link>
-          <br />
-          Free for non-commercial use.
-        </Typography>
       </Stack>
     </Paper>
   )

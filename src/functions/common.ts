@@ -15,3 +15,7 @@ export const scoreSeverity = (finalScore: number) => {
 
   return finalPrediction
 }
+
+export const roundNumber = (score: number, pow: number = 2) => {
+  return Math.round((score + Number.EPSILON) * Math.pow(10, pow)) / Math.pow(10, pow)
+}
