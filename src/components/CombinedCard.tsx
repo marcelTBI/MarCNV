@@ -35,7 +35,7 @@ const CombinedCard: React.FC<Props> = ({ title, scoreACMG, riskISV }) => {
               value: mark.value,
               label: (
                 <Tooltip title={mark.tooltip}>
-                  <Typography variant='body2'>{mark.label}</Typography>
+                  <Typography variant='subtitle1'>{mark.label}</Typography>
                 </Tooltip>
               ),
             }))}
@@ -55,11 +55,10 @@ const CombinedCard: React.FC<Props> = ({ title, scoreACMG, riskISV }) => {
           <LabeledText label='Combined Prediction' text={finalPrediction.label} color='white' fillColor={finalPrediction.fillColor} />
           <LabeledText label='Combined Score' text={roundNumber(finalScore).toString()} />
         </Stack>
-        <Typography variant='body2'>
+        <Typography variant='subtitle1'>
           Combined prediction score is counted as: ACMG + r(MLP - 0.5), where ACMG is the ACMG score, MLP is the probability of being pathogenic from machine
-          learning,
           <br />
-          and r is 0 for "Conservative", 1.1 for "Balanced", and 2.2 for "Progressive" strategy.
+          learning, and r is 0 for "Conservative", 1.1 for "Balanced", and 2.2 for "Progressive" strategy.
         </Typography>
       </Stack>
     </Paper>

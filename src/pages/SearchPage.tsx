@@ -54,13 +54,11 @@ const SearchPage: React.FC = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f0f0f0' }}>
       <Stack spacing={3} padding={3}>
         <SearchCNV submitData={submitData} />
-        <Stack spacing={3}>
-          {resultISV && <CombinedCard title={'Combined prediction' + cnvString} riskISV={resultISV.overall_risk} scoreACMG={finalScore} />}
-          {resultISV && <ISVCard title={'Machine learning prediction' + cnvString} resultISV={resultISV} />}
-          {Object.keys(pickedSections).length !== 0 && searchQuery && (
-            <ACMGCard title={'ACMG guidelines' + cnvString} def={pickedSections} cnvType={searchQuery.cnvType} onChangeScore={onChangeScore} />
-          )}
-        </Stack>
+        {resultISV && <CombinedCard title={'Combined prediction' + cnvString} riskISV={resultISV.overall_risk} scoreACMG={finalScore} />}
+        {resultISV && <ISVCard title={'Machine learning prediction' + cnvString} resultISV={resultISV} />}
+        {Object.keys(pickedSections).length !== 0 && searchQuery && (
+          <ACMGCard title={'ACMG guidelines' + cnvString} def={pickedSections} cnvType={searchQuery.cnvType} onChangeScore={onChangeScore} />
+        )}
       </Stack>
     </Box>
   )

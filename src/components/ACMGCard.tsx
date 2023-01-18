@@ -123,7 +123,7 @@ const ACMGCard: React.FC<Props> = ({ title, def, disabled, cnvType, onChangeScor
         <Stack direction='row' alignItems='center' display='flex' justifyContent='space-between'>
           <Typography variant='h5'>{title}</Typography>
           {modifiedSections.length > 0 && (
-            <Typography variant='body2' sx={{ color: 'red' }}>
+            <Typography variant='subtitle1' sx={{ color: 'red' }}>
               Modified (predicted: {modifiedSections.join(', ')})
             </Typography>
           )}
