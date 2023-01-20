@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Alert, Box, Divider, Link, Paper, Stack, Typography } from '@mui/material'
+import { Alert, Divider, Paper, Stack, Typography } from '@mui/material'
 
-import SubmitButton from '../components/SubmitButton'
-import FormInputText from '../components/forms/FormInputText'
-import FormInputComboBox from '../components/forms/FormInputComboBox'
-import { Option } from '../components/forms/FormProps'
+import SubmitButton from './SubmitButton'
+import FormInputText from './forms/FormInputText'
+import FormInputComboBox from './forms/FormInputComboBox'
+import { Option } from './forms/FormProps'
 
 type FormInput = {
   chrom: Option
@@ -104,12 +104,11 @@ const validateEnd = (end: string, start: string) => {
   return true
 }
 
-const SearchCNV: React.FC<Props> = ({ submitData }) => {
+const SearchCNVCard: React.FC<Props> = ({ submitData }) => {
   const { handleSubmit, control, watch, setValue } = useForm<FormInput>({ defaultValues: {} })
   const locStart = watch('start')
   const locEnd = watch('end')
   const locChrom = watch('chrom')
-  //const nomenclature = watch('nomenclature')
 
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -127,19 +126,17 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
     [setValue]
   )
 
-  /* // convert nomenclature to normal interval (converted directly in onChange callback)
-  useEffect(() => {
-    updateRanges(nomenclature)
-  }, [nomenclature, updateRanges])*/
-
   // convert normal interval to nomenclature
-  useEffect(() => {
-    if (locChrom && locStart && locEnd) {
-      setValue('nomenclature', `${locChrom.label}:${locStart.toLocaleString()}-${locEnd.toLocaleString()}`)
+  const updateNomenclature = (chrom?: Option, start?: string, end?: string) => {
+    const changeChrom = chrom ?? locChrom
+    const changeStart = start ?? locStart
+    const changeEnd = end ?? locEnd
+    if (changeChrom && changeStart && changeEnd && validateStart(changeStart) && validateEnd(changeEnd, changeStart)) {
+      setValue('nomenclature', `${changeChrom.label}:${Number(changeStart).toLocaleString('en-US')}-${Number(changeEnd).toLocaleString('en-US')}`)
     }
-  }, [locStart, locEnd, locChrom, setValue])
+  }
 
-  const getSize = () => {
+  const getSize = useMemo(() => {
     if (locStart && locEnd && !isNaN(Number(locEnd)) && !isNaN(Number(locStart))) {
       const lengthCNV = Number(locEnd) - Number(locStart)
       if (lengthCNV <= 0) return '--- b'
@@ -148,11 +145,11 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
       return `${lengthCNV} b`
     }
     return '--- b'
-  }
+  }, [locStart, locEnd])
 
   const onSubmit = async (data: FormInput) => {
     setLoading(true)
-    setValue('nomenclature', `${data.chrom.label}:${data.start.toLocaleString()}-${data.end.toLocaleString()}`)
+    setValue('nomenclature', `${data.chrom.label}:${Number(data.start).toLocaleString('en-US')}-${Number(data.end).toLocaleString('en-US')}`)
     const error = await submitData({
       chrom: data.chrom.label,
       start: Number(data.start),
@@ -170,39 +167,14 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
     await handleSubmit(onSubmit)()
   }
 
+  // type guard for Option
+  const isOption = (val: Option | Option[] | null): val is Option => (val as Option).label !== undefined
+
   return (
     <Paper sx={{ padding: 2, flex: 1 }}>
       <Stack spacing={2} alignItems='center'>
-        <Typography variant='h4'>Interpretation of copy-number variants</Typography>
-        <Stack alignItems='flex-start'>
-          <Typography variant='subtitle1' component='div'>
-            Method for automated prediction of pathogenicity of CNVs. The clinical impact of an CNV is predicted with two complementary tools and their
-            combination:
-          </Typography>
-          <Typography variant='subtitle1' component='div'>
-            <Box sx={{ fontWeight: 'bold', display: 'inline' }}>Machine learning prediction</Box> - impact of a CNV is predicted based on CNVs with known impact
-            and their similarity to input CNV <br />
-            <Box sx={{ fontWeight: 'bold', display: 'inline' }}>ACMG guidelines</Box> - impact of a CNV is predicted based on automatic evaluation of{' '}
-            <Link variant='subtitle1' href='https://pubmed.ncbi.nlm.nih.gov/31690835' target='_blank' rel='noreferrer'>
-              ACMG guidelines
-            </Link>
-            <br />
-            <Box sx={{ fontWeight: 'bold', display: 'inline' }}>Combined prediction</Box> - combination of the two previous approaches
-          </Typography>
-          <Typography variant='subtitle1'>
-            Further information can be found in (we also encourage you to cite it if you find this tool helpful):
-            <br />
-            <Link variant='subtitle1' href='https://www.nature.com/articles/s41598-021-04505-z' target='_blank' rel='noreferrer'>
-              Gažiová, M., Sládeček, T., Pös, O. et al. Automated prediction of the clinical impact of structural copy number variations. Sci Rep 12, 555
-              (2022).
-            </Link>
-            <br />
-            Free for non-commercial use.
-          </Typography>
-        </Stack>
-        <Divider flexItem />
-        <Typography variant='subtitle1' alignSelf='flex-start'>
-          Usage: Define your CNV finding by one of the options below (all use GRCh38 reference):
+        <Typography variant='subtitle1' alignSelf='flex-start' sx={{ fontWeight: 'bold', marginBottom: -1 }}>
+          Define your CNV finding by one of the options below (all use GRCh38 reference):
         </Typography>
         <Divider flexItem>Nomenclature input</Divider>
         <Stack spacing={2} direction='row' alignItems='center' alignSelf='flex-start'>
@@ -218,12 +190,21 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
           />
           <FormInputComboBox name='cnvType' control={control} label='CNV type' disabled={loading} options={cnvTypes} sx={{ minWidth: 170 }} required />
           <SubmitButton loading={loading} id='login' onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 235 }}>
-            Annotate ({getSize()})
+            Annotate ({getSize})
           </SubmitButton>
         </Stack>
         <Divider flexItem>Positional input</Divider>
         <Stack spacing={2} direction='row' alignItems='center' alignSelf='flex-start'>
-          <FormInputComboBox name='chrom' control={control} label='Chromosome' disabled={loading} options={chromosomes} sx={{ minWidth: 170 }} required />
+          <FormInputComboBox
+            name='chrom'
+            control={control}
+            label='Chromosome'
+            disabled={loading}
+            options={chromosomes}
+            sx={{ minWidth: 170 }}
+            onChange={(_e, value, _r) => (isOption(value) ? updateNomenclature(value) : undefined)}
+            required
+          />
           <Typography>:</Typography>
           <FormInputText
             name='start'
@@ -233,6 +214,7 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
             disabled={loading}
             validator={validateStart}
             sx={{ minWidth: 170 }}
+            onChange={(event) => updateNomenclature(undefined, event.target.value)}
             required
           />
           <Typography>-</Typography>
@@ -244,18 +226,19 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
             disabled={loading}
             validator={(value) => validateEnd(value, locStart)}
             sx={{ minWidth: 170 }}
+            onChange={(event) => updateNomenclature(undefined, undefined, event.target.value)}
             required
           />
           <FormInputComboBox name='cnvType' control={control} label='CNV type' disabled={loading} options={cnvTypes} sx={{ minWidth: 170 }} required />
           <SubmitButton loading={loading} id='login' onClick={handleSubmit(onSubmit)} size='large' sx={{ minWidth: 235 }}>
-            Annotate ({getSize()})
+            Annotate ({getSize})
           </SubmitButton>
         </Stack>
         {errorMessage && <Alert severity={'error'}>{errorMessage}</Alert>}
         <Divider flexItem>Examples</Divider>
         <Stack spacing={2} direction='row' alignContent='center' alignSelf='flex-start'>
           {examples.map((example) => (
-            <SubmitButton variant='contained' key={example.nomenclature} size='small' loading={loading} onClick={() => runExample(example)}>
+            <SubmitButton variant='contained' key={example.nomenclature} size='small' loading={loading} onClick={async () => await runExample(example)}>
               {example.label} <br /> {example.nomenclature}
             </SubmitButton>
           ))}
@@ -265,4 +248,4 @@ const SearchCNV: React.FC<Props> = ({ submitData }) => {
   )
 }
 
-export default SearchCNV
+export default SearchCNVCard

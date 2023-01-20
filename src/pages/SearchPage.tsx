@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react'
 import { Box, Stack } from '@mui/material'
 
-import SearchCNV, { CNVStats } from '../components/SearchCNV'
+import SearchCNVCard, { CNVStats } from '../components/SearchCNVCard'
 import ACMGCard, { SectionResponse, SectionResponses } from '../components/ACMGCard'
 import ISVCard, { ResultISV } from '../components/ISVCard'
 import { backendRequest } from '../functions/restFetch'
 import CombinedCard from '../components/CombinedCard'
+import IntroCard from '../components/IntroCard'
 
 const SearchPage: React.FC = () => {
   const [pickedSections, setPickedSections] = useState<SectionResponses>({})
@@ -53,7 +54,8 @@ const SearchPage: React.FC = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f0f0f0' }}>
       <Stack spacing={3} padding={3}>
-        <SearchCNV submitData={submitData} />
+        <IntroCard />
+        <SearchCNVCard submitData={submitData} />
         {resultISV && <CombinedCard title={'Combined prediction' + cnvString} riskISV={resultISV.overall_risk} scoreACMG={finalScore} />}
         {resultISV && <ISVCard title={'Machine learning prediction' + cnvString} resultISV={resultISV} />}
         {Object.keys(pickedSections).length !== 0 && searchQuery && (
