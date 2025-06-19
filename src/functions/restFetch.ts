@@ -20,8 +20,8 @@ const getCurrentTime = () => {
 export const createErrorMessage = (message: string | Array<unknown> | Record<string, unknown>): string => {
   if (typeof message === 'string') {
     return message
-  } else if (Array.isArray(message) && Object.prototype.hasOwnProperty.call(message[0], 'msg')) {
-    return message[0].msg
+  } else if (Array.isArray(message) && message.length > 0 && Object.prototype.hasOwnProperty.call(message[0], 'msg')) {
+    return JSON.stringify(message[0].msg)
   } else if (!Array.isArray(message) && Object.prototype.hasOwnProperty.call(message, 'message')) {
     return JSON.stringify(message.message)
   } else {
@@ -55,6 +55,7 @@ const fetchWithTimeout: (props: BackendRequestProps) => Promise<Response> = asyn
   const requestHeaders = new Headers(headers ?? { 'Content-Type': 'application/json' })
   requestHeaders.set('timestamp', getCurrentTime())
   requestHeaders.append('Accept', 'application/json')
+  requestHeaders.append('Access-Control-Allow-Origin', '*')
 
   // build an abort controller
   const controller = new AbortController()

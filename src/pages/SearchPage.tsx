@@ -48,7 +48,7 @@ const SearchPage: React.FC = () => {
       .reduce((partialSum, a) => partialSum + a, 0)
 
   const cnvString = searchQuery
-    ? ` - ${searchQuery.chrom}:${searchQuery.start.toLocaleString()}-${searchQuery.end.toLocaleString()} (${searchQuery.cnvType})`
+    ? ` - ${searchQuery.chrom}:${searchQuery.start.toLocaleString('en-US')}-${searchQuery.end.toLocaleString('en-US')} (${searchQuery.cnvType})`
     : ''
 
   return (
